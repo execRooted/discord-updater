@@ -116,7 +116,7 @@ cp target/release/discord-update /usr/local/bin/discord-updater
 
 chmod +x /usr/local/bin/discord-updater
 
-clear
+
 
 echo "Installation complete!"
 echo "You can now run 'discord-updater' from anywhere."
