@@ -22,8 +22,20 @@ A simple and efficient tool to update Discord on Linux systems, designed to fix 
 
 ### Option 1: Automated Installation (Recommended)
 
-```bash
+
+```
+git clone https://github.com/execRooted/discord-updater.git
+```
+
+```
 cd discord-update
+```
+
+```
+chmod +x install.sh
+```
+
+```
 ./install.sh
 ```
 
@@ -35,15 +47,23 @@ The installer will:
 
 ### Option 2: Manual Installation
 
-```bash
+```
 # Install Rust if not already installed
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+```
 source $HOME/.cargo/env
-
-# Build and install
+```
+```
 cd discord-update
+```
+```
 cargo build --release
+```
+```
 sudo cp target/release/discord-update /usr/local/bin/discord-updater
+```
+```
 sudo chmod +x /usr/local/bin/discord-updater
 ```
 
@@ -51,15 +71,14 @@ sudo chmod +x /usr/local/bin/discord-updater
 
 ### Update Discord
 
-```bash
-discord-updater
-```
-
-For system-wide installations requiring root:
+##### Open a terminaland type:
 
 ```bash
 sudo discord-updater
 ```
+ - Reopen discord
+ - Done! Enjoy!
+
 
 ### What happens during update:
 
@@ -81,47 +100,24 @@ The updater automatically detects Discord installed via:
 
 ## Troubleshooting
 
-### "Discord installation not found"
-
-If you get this error, Discord might be installed in a non-standard location. The updater searches these paths:
-
-- `/opt/discord`
-- `/usr/share/discord`
-- `/usr/local/share/discord`
-- `/usr/bin/discord`
-- `/usr/local/bin/discord`
-- `/snap/discord`
-- `~/.local/share/discord`
-- `~/.discord`
-
-**Solution**: Ensure Discord is properly installed and try running the updater with `sudo`.
-
-### "Permission denied" or "Operation not permitted"
-
-**Solution**: Run with `sudo`:
-```bash
-sudo discord-updater
-```
-
-### "Cross-device link" error
-
-This is automatically handled by the updater - no action needed.
-
-### Discord doesn't start after update
-
-**Solution**: Manually restart Discord or reboot your system.
 
 ### Build fails
 
 **Solution**: Ensure you have the required build tools:
-```bash
-# Ubuntu/Debian
+*(the installer installs them, but if you run in any issues, here's what you can do)*
+
+##### Ubuntu/Debian
+```
 sudo apt install build-essential
-
-# Arch Linux
+```
+```
+##### Arch Linux
+```
+```
 sudo pacman -S base-devel
-
-# Fedora
+```
+##### Fedora
+```
 sudo dnf groupinstall "Development Tools"
 ```
 
@@ -129,8 +125,13 @@ sudo dnf groupinstall "Development Tools"
 
 To remove the Discord updater:
 
-```bash
+```
 cd discord-update
+```
+```
+chmod +x uninstall.sh
+```
+```
 ./uninstall.sh
 ```
 
@@ -162,18 +163,8 @@ This will:
 4. Test thoroughly
 5. Submit a pull request
 
-## License
 
-This project is open source and available under the MIT License.
 
-## Support
-
-If you encounter issues:
-
-1. Check the troubleshooting section above
-2. Ensure Discord is properly installed
-3. Try running with `sudo`
-4. Check system logs for additional error information
 
 ## Changelog
 
@@ -187,3 +178,7 @@ If you encounter issues:
 ---
 
 **Note**: This tool is not affiliated with Discord Inc. Use at your own risk, though it only performs standard update operations.
+
+---
+
+***Made by execRooted***
