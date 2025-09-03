@@ -1,6 +1,6 @@
 # Discord Updater for Linux
 
-A simple and efficient tool to update Discord on Linux systems, designed to fix the "lucky day" update issue and provide manual control over Discord updates.
+A simple and efficient tool to update Discord on Linux systems, designed to fix the "lucky day" update issue.
 
 ## Features
 
