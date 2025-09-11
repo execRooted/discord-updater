@@ -1,5 +1,7 @@
 # Discord Updater for Linux
 
+> Made and tested on Arch Linux, should work on all major Linux distros.
+
 A simple and efficient tool to update Discord on Linux systems, designed to fix the "lucky day" update issue.
 
 ## Features
