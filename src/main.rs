@@ -25,8 +25,7 @@ async fn main() -> Result<()> {
     println!("Found Discord installation at: {}", install_path.display());
 
     if requires_root(&install_path) && !is_root() {
-        println!("This operation requires root privileges.");
-        println!("Please run with: sudo discord-updater");
+        println!("[ERROR] This tool needs to be ran as root for a system-wide instalation of discrd");
         return Ok(());
     }
 
@@ -35,9 +34,6 @@ async fn main() -> Result<()> {
 
     println!("Extracting...");
     extract_discord()?;
-
-    println!("Backing up current installation...");
-    backup_discord(&install_path)?;
 
     println!("Installing new version...");
     install_discord(&install_path)?;

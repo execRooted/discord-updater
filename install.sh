@@ -118,4 +118,4 @@ chmod +x /usr/local/bin/discord-updater
 
 echo "Installation complete!"
 echo "You can now run 'discord-updater' from anywhere."
-echo "To update Discord, simply type: discord-updater"
+echo "To update Discord, simply type: sudo discord-updater"
