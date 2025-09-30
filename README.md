@@ -83,3 +83,7 @@ This is open source, as all things should be;
 ---
 
 **Note**: This tool is not affiliated with Discord Inc. Use at your own risk, though it only performs standard update operations.
+
+---
+
+***Made by execRooted***
