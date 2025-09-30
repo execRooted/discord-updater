@@ -8,38 +8,84 @@ use tokio::fs::File as TokioFile;
 use tokio::io::AsyncWriteExt;
 use flate2::read::GzDecoder;
 use tar::Archive;
+use clap::Parser;
 
 const DISCORD_DOWNLOAD_URL: &str = "https://discord.com/api/download?platform=linux&format=tar.gz";
 const TEMP_DIR: &str = "/tmp/discord-update";
 const BACKUP_DIR: &str = "/tmp/discord-backup";
 
+const GREEN: &str = "\x1B[36m";
+const RED: &str = "\x1B[31m";
+const YELLOW: &str = "\x1B[33m";
+const RESET: &str = "\x1B[0m";
+
+#[derive(Parser)]
+#[command(name = "discord-updater")]
+#[command(about = "Downloads and installs the latest Discord version to resolve update issues.")]
+struct Args {
+    #[arg(short, long, help = "Show help information")]
+    help: bool,
+    #[arg(short, long, help = "Restore Discord from backup")]
+    restore: bool,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    print!("\x1B[2J\x1B[1;1H");
-    println!("discord-updater by execRooted");
-    println!("Discord Updater for Linux");
-    println!("This tool downloads the latest Discord version to fix the 'lucky day' issue.");
-    println!("WARNING: This may require root privileges for system-wide installation.");
+    let args = Args::parse();
 
-    let install_path = find_discord_installation()?;
-    println!("Found Discord installation at: {}", install_path.display());
-
-    if requires_root(&install_path) && !is_root() {
-        println!("[ERROR] This tool needs to be ran as root for a system-wide instalation of discrd");
+    if args.help {
+        print!("\x1B[2J\x1B[1;1H");
+        print_help();
         return Ok(());
     }
 
-    println!("Downloading latest Discord...");
+    if args.restore {
+        restore_backup()?;
+        return Ok(());
+    }
+
+    print!("\x1B[2J\x1B[1;1H");
+    println!("discord-updater");
+    println!("Made by execRooted");
+    println!("Purpose: Downloads and installs the latest Discord version to resolve update issues.");
+    println!("");
+
+    let install_path = find_discord_installation()?;
+    println!("{}[INFO]{} Found Discord installation at: {}", YELLOW, RESET, install_path.display());
+
+    if requires_root(&install_path) && !is_root() {
+        println!("{}[ERROR]{} This tool needs to be ran as root for a system-wide installation of Discord", RED, RESET);
+        return Ok(());
+    }
+
+    println!("{}[INFO]{} Downloading latest Discord...", YELLOW, RESET);
     download_discord().await?;
 
-    println!("Extracting...");
+    println!("{}[INFO]{} Extracting...", YELLOW, RESET);
     extract_discord()?;
 
-    println!("Installing new version...");
+    println!("{}[INFO]{} Creating backup...", YELLOW, RESET);
+    backup_discord(&install_path)?;
+
+    println!("{}[INFO]{} Installing new version...", YELLOW, RESET);
     install_discord(&install_path)?;
 
-    println!("Discord updated successfully!");
-    println!("Please restart Discord to use the new version.");
+    println!("{}[INFO]{} Verifying installation...", YELLOW, RESET);
+    let executable_path = install_path.join("Discord");
+    if !executable_path.exists() {
+        println!("{}[ERROR]{} Executable not found at {}. Attempting to restore backup...", RED, RESET, executable_path.display());
+        if Path::new(BACKUP_DIR).exists() {
+            fs::remove_dir_all(&install_path)?;
+            copy_dir_recursive(Path::new(BACKUP_DIR), &install_path)?;
+            println!("{}[INFO]{} Backup restored. Please check your Discord installation.", YELLOW, RESET);
+            return Ok(());
+        } else {
+            return Err(anyhow!("Installation failed: executable not found, and no backup available."));
+        }
+    }
+
+    println!("{}[SUCCESS]{} Discord updated successfully!", GREEN, RESET);
+    println!("{}[INFO]{} Please restart Discord to use the new version.", YELLOW, RESET);
 
     Ok(())
 }
@@ -57,41 +103,34 @@ fn is_root() -> bool {
 fn find_discord_installation() -> Result<std::path::PathBuf> {
     let home = std::env::var("HOME")?;
 
-    let possible_paths = vec![
+    let possible_paths: Vec<String> = vec![
         "/opt/discord".to_string(),
         "/usr/share/discord".to_string(),
         "/usr/local/share/discord".to_string(),
-        "/usr/bin/discord".to_string(),
-        "/usr/local/bin/discord".to_string(),
         "/snap/discord".to_string(),
         format!("{}/.local/share/discord", home),
         format!("{}/.discord", home),
-        "/var/lib/flatpak/exports/share/applications/com.discordapp.Discord.desktop".to_string(),
     ];
 
-    for path_str in possible_paths {
-        let path = Path::new(&path_str);
-        if path.exists() {
-            if path.is_dir() {
-                return Ok(path.to_path_buf());
-            } else if path.is_file() && path_str.contains("discord") {
-                if let Some(parent) = path.parent() {
-                    if parent.exists() {
-                        return Ok(parent.to_path_buf());
-                    }
-                }
-            }
+    for path_str in &possible_paths {
+        let path = Path::new(path_str);
+        if path.exists() && path.is_dir() {
+            return Ok(path.to_path_buf());
         }
     }
 
-    if let Ok(discord_path) = Command::new("which")
-        .arg("discord")
-        .output() {
+    
+    if let Ok(discord_path) = Command::new("which").arg("discord").output() {
         if discord_path.status.success() {
             let path_str = String::from_utf8_lossy(&discord_path.stdout).trim().to_string();
             let path = Path::new(&path_str);
-            if let Some(parent) = path.parent() {
-                if parent.exists() {
+            let resolved_path = if path.is_symlink() {
+                fs::read_link(path).unwrap_or_else(|_| path.to_path_buf())
+            } else {
+                path.to_path_buf()
+            };
+            if let Some(parent) = resolved_path.parent() {
+                if parent.exists() && parent.is_dir() {
                     return Ok(parent.to_path_buf());
                 }
             }
@@ -164,5 +203,40 @@ fn install_discord(install_path: &Path) -> Result<()> {
     fs::create_dir_all(install_path)?;
     copy_dir_recursive(&extracted_dir, install_path)?;
 
+    Ok(())
+}
+
+fn print_help() {
+    println!("discord-updater");
+    println!("Made by execRooted");
+    println!("Purpose: Downloads and installs the latest Discord version to resolve update issues.");
+    println!("");
+    println!("Usage: discord-updater [OPTIONS]");
+    println!("");
+    println!("Options:");
+    println!("  -h, --help     Show this help information");
+    println!("  -r, --restore  Restore Discord from the backup created during the last update");
+    println!("");
+    println!("Without options, performs a full update of Discord.");
+}
+
+fn restore_backup() -> Result<()> {
+    let install_path = find_discord_installation()?;
+    if requires_root(&install_path) && !is_root() {
+        println!("{}[ERROR]{} This tool needs to be ran as root to restore a system-wide installation of Discord", RED, RESET);
+        return Ok(());
+    }
+    if !Path::new(BACKUP_DIR).exists() {
+        println!("{}[ERROR]{} No backup found at {}. Cannot restore.", RED, RESET, BACKUP_DIR);
+        return Ok(());
+    }
+    println!("{}[INFO]{} Restoring Discord from backup...", YELLOW, RESET);
+    if install_path.exists() {
+        fs::remove_dir_all(&install_path)?;
+    }
+    fs::create_dir_all(&install_path)?;
+    copy_dir_recursive(Path::new(BACKUP_DIR), &install_path)?;
+    println!("{}[SUCCESS]{} Discord restored from backup!", GREEN, RESET);
+    println!("{}[INFO]{} Please restart Discord.", YELLOW, RESET);
     Ok(())
 }

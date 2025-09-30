@@ -3,19 +3,27 @@
 set -e
 
 clear
-echo "Discord Updater Uninstaller"
-echo "==========================="
+
+TURQUOISE='\033[36m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+clear
+echo -e "${YELLOW}Discord Updater Uninstaller${NC}"
+echo -e "${YELLOW}==========================${NC}"
+echo -e "${TURQUOISE}by execRooted${NC}"
+echo ""
 
 if [ "$EUID" -ne 0 ]; then
-    echo "This uninstaller requires root privileges."
-    echo "Please enter your password to continue..."
-    exec sudo "$0" "$@"
+    echo -e "${RED}[ERROR]${NC} This uninstaller must be run as root."
+    exit 1
 fi
 
 if [ -f "/usr/local/bin/discord-updater" ]; then
-    echo "Removing discord-updater from /usr/local/bin..."
+    echo -e "${YELLOW}[INFO]${NC} Removing discord-updater from /usr/local/bin..."
     rm /usr/local/bin/discord-updater
-    echo "Uninstallation complete!"
+    echo -e "${TURQUOISE}[SUCCESS]${NC} Uninstallation complete!"
 else
-    echo "discord-updater is not installed."
+    echo -e "${YELLOW}[INFO]${NC} discord-updater is not installed."
 fi
