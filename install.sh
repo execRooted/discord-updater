@@ -7,12 +7,14 @@ clear
 TURQUOISE='\033[36m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
+BLUE='\033[34m'  
 NC='\033[0m'
 
 clear
-echo -e "${YELLOW}Discord Updater Installer${NC}"
-echo -e "${YELLOW}=========================${NC}"
-echo -e "${TURQUOISE}by execRooted${NC}"
+echo -e "${BLUE}Discord Updater Installer${NC}"
+echo -e "${BLUE}=========================${NC}"
+echo -e "${BLUE}by execRooted${NC}"  
+
 echo ""
 
 if [ "$EUID" -ne 0 ]; then
@@ -127,3 +129,4 @@ chmod +x /usr/local/bin/discord-updater
 echo -e "${TURQUOISE}[SUCCESS]${NC} Installation complete!"
 echo -e "${YELLOW}[INFO]${NC} You can now run 'discord-updater' from anywhere."
 echo -e "${YELLOW}[USAGE]${NC} To update Discord, simply type: sudo discord-updater"
+

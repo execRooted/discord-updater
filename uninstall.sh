@@ -7,12 +7,13 @@ clear
 TURQUOISE='\033[36m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
+BLUE='\033[34m'  
 NC='\033[0m'
 
 clear
-echo -e "${YELLOW}Discord Updater Uninstaller${NC}"
-echo -e "${YELLOW}==========================${NC}"
-echo -e "${TURQUOISE}by execRooted${NC}"
+echo -e "${BLUE}Discord Updater Uninstaller${NC}"
+echo -e "${BLUE}==========================${NC}"
+echo -e "${BLUE}by execRooted${NC}"
 echo ""
 
 if [ "$EUID" -ne 0 ]; then
@@ -27,3 +28,5 @@ if [ -f "/usr/local/bin/discord-updater" ]; then
 else
     echo -e "${YELLOW}[INFO]${NC} discord-updater is not installed."
 fi
+
+
