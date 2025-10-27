@@ -1,6 +1,6 @@
 [package]
 name = "discord-updater"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["execrooted <execrooted@gmail.com>"]
 description = "A tool to download and install the latest Discord version to resolve update issues."
@@ -27,3 +27,4 @@ tar = "0.4"
 anyhow = "1.0"
 libc = "0.2"
 clap = { version = "4.0", features = ["derive"] }
+
