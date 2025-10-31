@@ -240,3 +240,8 @@ fn restore_backup() -> Result<()> {
     println!("{}[INFO]{} Please restart Discord.", YELLOW, RESET);
     Ok(())
 }
+
+
+
+
+
